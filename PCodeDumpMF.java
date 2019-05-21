@@ -226,7 +226,7 @@ public class PCodeDump extends GhidraScript {
 			}
 			if (!pairs.containsKey(label+key)) {
 				pw.println(key+TAB+value);
-				pairs.put(label+key, Long.toHexString(value));
+				pairs.put(label+key, Long.toString(value));
 			}
 			//System.out.println(label+"\t"+key+"\t"+value);
 		} catch (FileNotFoundException e) {
@@ -277,7 +277,7 @@ public class PCodeDump extends GhidraScript {
 			}
 			if (!pairs.containsKey(label + key + index)) {
 				pw.println(key + TAB + index + TAB + value);
-				pairs.put(label + key + index, Long.toHexString(value));
+				pairs.put(label + key + index, Long.toString(value));
 			}
 			// System.out.println(label+"\t"+key+"\t"+index+"\t"+value);
 			exportS2N(index);
@@ -288,8 +288,8 @@ public class PCodeDump extends GhidraScript {
 
 	private void exportS2N(int n) {
 		if (!pairs.containsKey("S2N"+n)) {
-			pws.get("S2N").println(Integer.toHexString(n)+TAB+n);
-			pairs.put("S2N"+n, Integer.toHexString(n));
+			pws.get("S2N").println(Integer.toString(n)+TAB+n);
+			pairs.put("S2N"+n, Integer.toString(n));
 		}
 	}
 	
@@ -344,10 +344,10 @@ public class PCodeDump extends GhidraScript {
 		export("VNODE_DESC",			id, vn.toString());
 		long offset = vn.getOffset();
 		exportL("VNODE_OFFSET",			id, offset);
-		if (offset < Integer.MAX_VALUE) {
-			exportS2N((int)offset);
+        if (offset < Integer.MAX_VALUE && offset > Integer.MIN_VALUE) {
+            exportL("VNODE_OFFSET_N",      id, offset);
 		}
-		export("VNODE_SIZE",			id, Integer.toHexString(vn.getSize()));
+		export("VNODE_SIZE",			id, Integer.toString(vn.getSize()));
 		export("VNODE_SPACE",			id, vn.getAddress().getAddressSpace().getName());
 		HighVariable hv = vn.getHigh();
 		if (hv == null) {
@@ -484,7 +484,8 @@ public class PCodeDump extends GhidraScript {
 	private void exportComponent(String label, String id, int i, DataTypeComponent dtc) {
 		String dtcid = dtID(dtc.getDataType());
 		exportN(label+"_FIELD", 		id, i, dtcid);
-		exportNL(label+"_OFFSET", 		id, i, dtc.getOffset());
+        exportNL(label+"_OFFSET",       id, i, dtc.getOffset());
+        exportNL(label+"_OFFSET_N",     id, i, dtc.getOffset());
 		if (dtc.getFieldName() != null) {
 			exportN(label+"_FIELD_NAME", 	id, i, dtc.getFieldName());
 			exportN(label+"_FIELD_NAME_BY_OFFSET", id, dtc.getOffset(), dtc.getFieldName());
@@ -548,7 +549,8 @@ public class PCodeDump extends GhidraScript {
 		exportN("PROTO_PARAMETER_COUNT",	id, proto.getNumParams(), "");
 		for (int i = 0; i < proto.getNumParams(); i++) {
 			HighParam param = proto.getParam(i);
-			exportN("PROTO_PARAMETER",		id, i, hvarID(hfn,param));
+            exportN("PROTO_PARAMETER",        id, i, hvarID(hfn,param));
+            exportN("PROTO_PARAMETER_S",      id, i, hvarID(hfn,param));
 			export("PROTO_PARAMETER_DATATYPE",	hvarID(hfn,param), dtID(param.getDataType()));
 			exportType(param.getDataType());
 			VarnodeAST rep = (VarnodeAST) param.getRepresentative();
